@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM ubuntu
 
 ENV HUGO_VERSION='0.59.0'
 ENV HUGO_NAME="hugo_extended_${HUGO_VERSION}_Linux-64bit"
