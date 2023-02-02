@@ -1,26 +1,15 @@
 FROM ubuntu
 
-ENV HUGO_VERSION='0.59.0'
-ENV HUGO_NAME="hugo_extended_${HUGO_VERSION}_Linux-64bit"
-ENV HUGO_BASE_URL="https://github.com/gohugoio/hugo/releases/download"
-ENV HUGO_URL="${HUGO_BASE_URL}/v${HUGO_VERSION}/${HUGO_NAME}.tar.gz"
-ENV HUGO_CHECKSUM_URL="${HUGO_BASE_URL}/v${HUGO_VERSION}/hugo_${HUGO_VERSION}_checksums.txt"
-
-WORKDIR /hugo
-SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
-RUN apk add --no-cache --virtual .build-deps wget && \
-    apk add --no-cache \
-    git \
-    ca-certificates \
-    libc6-compat \
-    libstdc++ && \
-    wget --quiet "${HUGO_URL}" && \
-    wget --quiet "${HUGO_CHECKSUM_URL}" && \
-    grep "${HUGO_NAME}.tar.gz" "./hugo_${HUGO_VERSION}_checksums.txt" | sha256sum -c - && \
-    tar -zxvf "${HUGO_NAME}.tar.gz" && \
-    mv ./hugo /usr/bin/hugo && \
-    apk del .build-deps && \
-    rm -rf /hugo
-
-WORKDIR /src
-ENTRYPOINT [ "/usr/bin/hugo" ]
+RUN apt-get update -y \
+  && apt-get install --no-install-recommends -y build-essential python3-dev libcairo2-dev libpango1.0-dev ffmpeg \
+  && apt-get install --no-install-recommends -y python3 python3-pip \
+  && pip3 install manim \
+  && pip3 install git-sim \
+  # Setup user env
+  && mkdir /root/tmp \
+  # これは上書きされる(CodeSandbox 側が設定を変更するもよう)
+  # && echo "alias git-sim='git-sim --media-dir /workspace/ -d'" >> /root/.zshrc \
+  # Cleanup
+  && apt-get autoremove -y \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
